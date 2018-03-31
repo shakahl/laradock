@@ -678,7 +678,24 @@ services:
       networks:
         - frontend
         - backend
-        
+
+### Laravel Horizon ###########################################
+    laravel-horizon:
+      build:
+        context: ./laravel-horizon
+        dockerfile: "Dockerfile-${PHP_VERSION}"
+        args:
+          - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
+      volumes_from:
+        - applications
+      depends_on:
+        - workspace
+        - redis
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      networks:
+        - backend
+
 ### Solr Container #########################################
 
     solr:
