@@ -697,7 +697,6 @@ services:
         - backend
 
 ### Solr Container #########################################
-
     solr:
       build:
         context: ./solr
