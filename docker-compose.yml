@@ -676,10 +676,8 @@ services:
       build:
         context: ./laravel-horizon
         dockerfile: "Dockerfile-${PHP_VERSION}"
-        args:
-          - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
-      volumes_from:
-        - applications
+      volumes:
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
       depends_on:
         - workspace
         - redis
