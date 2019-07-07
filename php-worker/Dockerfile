@@ -63,8 +63,27 @@ RUN if [ ${INSTALL_ZIP_ARCHIVE} = true ]; then \
     docker-php-ext-install zip \
 ;fi
 
-RUN rm /var/cache/apk/* \
-    && mkdir -p /var/www
+# Install MySQL Client:
+ARG INSTALL_MYSQL_CLIENT=false
+RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
+    apk --update add mysql-client \
+;fi
+
+# Install FFMPEG:
+ARG INSTALL_FFMPEG=false
+RUN if [ ${INSTALL_FFMPEG} = true ]; then \
+    apk --update add ffmpeg \
+;fi
+
+# Install AMQP:
+ARG INSTALL_AMQP=false
+
+RUN if [ ${INSTALL_AMQP} = true ]; then \
+    apk --update add rabbitmq-c rabbitmq-c-dev && \
+    pecl install amqp && \
+    docker-php-ext-enable amqp && \
+    docker-php-ext-install sockets \
+;fi
 
 # Install Phalcon ext
 ARG INSTALL_PHALCON=false
@@ -78,6 +97,56 @@ RUN if [ $INSTALL_PHALCON = true ]; then \
     && cd /tmp/cphalcon-${PHALCON_VERSION}/build \
     && ./install \
     && rm -rf /tmp/cphalcon* \
+;fi
+
+RUN if [ $INSTALL_GHOSTSCRIPT = true ]; then \
+    apk --update add ghostscript \
+;fi
+
+#Install GMP package:
+ARG INSTALL_GMP=false
+RUN if [ ${INSTALL_GMP} = true ]; then \
+   apk add --update --no-cache gmp gmp-dev \
+   && docker-php-ext-install gmp \
+;fi
+
+
+RUN rm /var/cache/apk/* \
+    && mkdir -p /var/www
+
+
+###########################################################################
+# Swoole EXTENSION
+###########################################################################
+
+ARG INSTALL_SWOOLE=false
+
+RUN if [ ${INSTALL_SWOOLE} = true ]; then \
+    # Install Php Swoole Extension
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+      pecl -q install swoole-2.0.10; \
+    else \
+      if [ $(php -r "echo PHP_MINOR_VERSION;") = "0" ]; then \
+        pecl install swoole-2.2.0; \
+      else \
+        pecl install swoole; \
+      fi \
+    fi \
+    && docker-php-ext-enable swoole \
+;fi
+
+###########################################################################
+# Taint EXTENSION
+###########################################################################
+
+ARG INSTALL_TAINT=false
+
+RUN if [ ${INSTALL_TAINT} = true ]; then \
+    # Install Php TAINT Extension
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ]; then \
+      pecl install taint; \
+    fi && \
+    docker-php-ext-enable taint \
 ;fi
 
 #
